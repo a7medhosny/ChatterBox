@@ -4,7 +4,7 @@ class CustomFormField extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final RegExp? validationRegExp;
-  CustomFormField(
+  const CustomFormField(
       {super.key,
       required this.hintText,
       required this.controller,

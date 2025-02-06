@@ -46,10 +46,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> addUser(UserModel user) async {
-    try {
       await authRepo.addUser(user);
-    } catch (e) {
-      print(e.toString());
-    }
+  
   }
 }

@@ -25,6 +25,11 @@ class AuthService {
     }
   }
 
+  Future<void> logout() async {
+    await _firebaseAuth.signOut();
+    // this case the _firebaseAuth.currentUser to be null
+  }
+
   String _handleAuthException(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':
