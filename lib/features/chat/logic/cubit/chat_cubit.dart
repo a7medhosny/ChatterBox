@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:chatter_box/features/chat/data/models/message_model.dart';
 import 'package:chatter_box/features/chat/data/repo/chat_repo.dart';
@@ -16,8 +18,8 @@ class ChatCubit extends Cubit<ChatState> {
       List<ChatMessage> messages =
           await getChatData(uid1, uid2, currentUser, otherUser);
       emit(SendMessageSuccess(messages: messages));
-    } catch (e) {
-      print("Error with seding message $e");
+    } catch (e, stackTrace) {
+      log("Error sending message: $e", stackTrace: stackTrace);
     }
   }
 
@@ -27,7 +29,9 @@ class ChatCubit extends Cubit<ChatState> {
       List<ChatMessage> messages =
           await chatRepo.getChatData(uid1, uid2, currentUser, otherUser);
       return messages;
-    } catch (e) {}
+    } catch (e, stackTrace) {
+      log("Error get chat data: $e", stackTrace: stackTrace);
+    }
     return [];
   }
 }

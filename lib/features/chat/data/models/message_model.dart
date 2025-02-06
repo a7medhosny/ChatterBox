@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum MessageType { text, Image }
+enum MessageType { Text, Image }
 
 class Message {
   String? senderID;

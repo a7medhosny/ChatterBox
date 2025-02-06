@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:chatter_box/features/auth/data/models/user_model.dart';
 import 'package:chatter_box/features/home/data/repo/home_repo.dart';
@@ -16,7 +18,8 @@ class HomeCubit extends Cubit<HomeState> {
     try {
       final users = await homeRepo.getUsersExceptCurrent();
       emit(HomeLoaded(users));
-    } catch (e) {
+    } catch (e, stackTrace) {
+      log("Error fetching users: $e", stackTrace: stackTrace);
       emit(HomeError("Oops!,please try again later"));
     }
   }
@@ -24,8 +27,8 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> createNewChat(String uid1, String uid2) async {
     try {
       await homeRepo.createNewChat(uid1, uid2);
-    } catch (e) {
-      // print("Error with craete chat $e");
+    } catch (e, stackTrace) {
+      log("Error creating chat: $e", stackTrace: stackTrace);
     }
   }
 }

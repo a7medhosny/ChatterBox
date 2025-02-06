@@ -83,7 +83,7 @@ class _ChatScreenState extends State<ChatScreen> {
       Message message = Message(
         senderID: currentUser!.id,
         content: chatMessage.text,
-        messageType: MessageType.text,
+        messageType: MessageType.Text,
         sentAt: Timestamp.fromDate(chatMessage.createdAt),
       );
 
