@@ -29,18 +29,16 @@ class _ChatScreenState extends State<ChatScreen> {
     otherUser = ChatUser(id: widget.user.uid, firstName: widget.user.name);
     currentUser = ChatUser(
         id: _authService.user!.uid, firstName: _authService.user!.displayName);
-    _fetchData();
+    _listenForMessages();
   }
 
-  _fetchData() async {
-    final fetchedMessages = await context.read<ChatCubit>().getChatData(
-        widget.user.uid, _authService.user!.uid, currentUser!, otherUser!);
-    
-    if (mounted) {
-      setState(() {
-        chatMessages = fetchedMessages;
-      });
-    }
+  void _listenForMessages() {
+    context.read<ChatCubit>().listenForMessages(
+          widget.user.uid,
+          _authService.user!.uid,
+          currentUser!,
+          otherUser!,
+        );
   }
 
   @override
@@ -49,17 +47,13 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: Text(widget.user.name),
       ),
-      body: BlocListener<ChatCubit, ChatState>(
-        listener: (context, state) {
-          print("State of Chat $state");
-
-          if (state is SendMessageSuccess && mounted) {
-            setState(() {
-              chatMessages = state.messages;
-            });
+      body: BlocBuilder<ChatCubit, ChatState>(
+        builder: (context, state) {
+          if (state is ChatMessagesUpdated) {
+            chatMessages = state.messages;
           }
+          return _buildUI();
         },
-        child: _buildUI(),
       ),
     );
   }
@@ -86,9 +80,10 @@ class _ChatScreenState extends State<ChatScreen> {
         messageType: MessageType.Text,
         sentAt: Timestamp.fromDate(chatMessage.createdAt),
       );
-
-      context.read<ChatCubit>().sendChatMessage(
-          widget.user.uid, _authService.user!.uid, message, currentUser!, otherUser!);
+      context.read<ChatCubit>().sendChatMessage(widget.user.uid,
+          _authService.user!.uid, message, currentUser!, otherUser!);
+      context.read<ChatCubit>().sendFCMNotification(
+          widget.user.token, widget.user.name, chatMessage.text);
     }
   }
 }

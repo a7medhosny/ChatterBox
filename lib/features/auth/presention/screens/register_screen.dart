@@ -25,7 +25,7 @@ class RegisterScreen extends StatelessWidget {
             );
             context
                 .read<AuthCubit>()
-                .addUser(UserModel(uid: state.user.uid, name: nameController.text));
+                .addUser(UserModel(uid: state.user.uid, name: nameController.text,token: state.user.token));
           } else if (state is AuthFailure) {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.error)));

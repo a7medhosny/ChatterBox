@@ -9,7 +9,9 @@ class HomeLoading extends HomeState {}
 
 class HomeLoaded extends HomeState {
   final List<UserModel> users;
-  HomeLoaded(this.users);
+  final Map<String, Stream<String?>> lastMessages;
+
+  HomeLoaded(this.users, this.lastMessages);
 }
 
 class HomeError extends HomeState {

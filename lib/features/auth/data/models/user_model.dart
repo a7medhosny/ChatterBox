@@ -1,14 +1,15 @@
 class UserModel {
   String uid;
   String name;
-
-  UserModel({required this.uid, required this.name});
+  String token;
+  UserModel({required this.uid, required this.name,required this.token});
 
   // تحويل بيانات الكائن إلى JSON عند إضافته لـ Firestore
   Map<String, dynamic> toJson() {
     return {
       'uid': uid,
       'name': name,
+      'token':token
     };
   }
 
@@ -17,6 +18,7 @@ class UserModel {
     return UserModel(
       uid: map['uid'] ?? '',
       name: map['name'] ?? '',
+      token: map['token'] ?? '',
     );
   }
 }

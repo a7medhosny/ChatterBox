@@ -1,5 +1,6 @@
 import 'package:chatter_box/core/services/auth_service.dart';
 import 'package:chatter_box/core/services/database_service.dart';
+import 'package:chatter_box/core/services/notification_service.dart';
 import 'package:chatter_box/features/auth/data/repo/auth_repo.dart';
 import 'package:chatter_box/features/auth/logic/cubit/auth_cubit.dart';
 import 'package:chatter_box/features/chat/data/repo/chat_repo.dart';
@@ -14,11 +15,13 @@ void setup() {
   // تسجيل AuthService كمصدر للخدمات المتعلقة بالمصادقة
   getIt.registerLazySingleton<AuthService>(() => AuthService());
   getIt.registerLazySingleton<DatabaseService>(() => DatabaseService());
+  getIt.registerLazySingleton<NotificationService>(() => NotificationService());
 
   // تسجيل AuthRepo والذي يعتمد على AuthService
   getIt.registerLazySingleton<AuthRepo>(() => AuthRepo(
       authService: getIt<AuthService>(),
-      databaseService: getIt<DatabaseService>()));
+      databaseService: getIt<DatabaseService>(),
+      notificationService: getIt<NotificationService>()));
 
   // تسجيل AuthCubit لإدارة حالة المصادقة
   getIt
@@ -30,6 +33,6 @@ void setup() {
       .registerFactory<HomeCubit>(() => HomeCubit(homeRepo: getIt<HomeRepo>()));
 
   getIt.registerLazySingleton<ChatRepo>(
-      () => ChatRepo(databaseService: getIt<DatabaseService>()));
+      () => ChatRepo(databaseService: getIt<DatabaseService>(), notificationService:getIt<NotificationService>() ));
   getIt.registerLazySingleton<ChatCubit>(() => ChatCubit(getIt<ChatRepo>()));
 }

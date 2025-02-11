@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
 import 'package:chatter_box/features/chat/data/models/message_model.dart';
 import 'package:chatter_box/features/chat/data/repo/chat_repo.dart';
@@ -10,28 +9,31 @@ part 'chat_state.dart';
 
 class ChatCubit extends Cubit<ChatState> {
   final ChatRepo chatRepo;
+  Stream<List<ChatMessage>>? chatMessagesStream;
+  
   ChatCubit(this.chatRepo) : super(ChatInitial());
-  Future<void> sendChatMessage(uid1, uid2, Message message,
+
+  void listenForMessages(String uid1, String uid2, ChatUser currentUser, ChatUser otherUser) {
+    chatMessagesStream = chatRepo.getChatMessages(uid1, uid2, currentUser, otherUser);
+    chatMessagesStream!.listen((messages) {
+      emit(ChatMessagesUpdated(messages: messages));
+    }, onError: (e, stackTrace) {
+      log("Error listening to messages: $e", stackTrace: stackTrace);
+    });
+  }
+ 
+
+  Future<void> sendChatMessage(String uid1, String uid2, Message message,
       ChatUser currentUser, ChatUser otherUser) async {
     try {
       await chatRepo.sendChatMessage(uid1, uid2, message);
-      List<ChatMessage> messages =
-          await getChatData(uid1, uid2, currentUser, otherUser);
-      emit(SendMessageSuccess(messages: messages));
     } catch (e, stackTrace) {
       log("Error sending message: $e", stackTrace: stackTrace);
     }
   }
-
-  Future<List<ChatMessage>> getChatData(String uid1, String uid2,
-      ChatUser currentUser, ChatUser otherUser) async {
-    try {
-      List<ChatMessage> messages =
-          await chatRepo.getChatData(uid1, uid2, currentUser, otherUser);
-      return messages;
-    } catch (e, stackTrace) {
-      log("Error get chat data: $e", stackTrace: stackTrace);
-    }
-    return [];
+    Future<void> sendFCMNotification(
+      String receiverToken, title, notificationBody) async {
+    await chatRepo.sendFCMNotification(
+        receiverToken, title, notificationBody);
   }
 }

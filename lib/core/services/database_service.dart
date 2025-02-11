@@ -1,3 +1,4 @@
+// database_service.dart
 import 'package:chatter_box/core/DI/get_it.dart';
 import 'package:chatter_box/core/helpers/helper.dart';
 import 'package:chatter_box/core/services/auth_service.dart';
@@ -21,9 +22,7 @@ class DatabaseService {
   Future<void> addUser(UserModel user) async {
     try {
       await _usersCollection!.doc(user.uid).set(user.toJson());
-      // print("User Added Successfully!");
     } catch (e) {
-      // print("Error adding user: $e");
       throw Exception(e.toString());
     }
   }
@@ -31,23 +30,18 @@ class DatabaseService {
   Future<List<QueryDocumentSnapshot<Object?>>> getUsersExceptCurrent() async {
     try {
       String currentUserId = getIt.get<AuthService>().user!.uid;
-
       QuerySnapshot querySnapshot = await _usersCollection!
-          .where('uid', isNotEqualTo: currentUserId) // استبعاد المستخدم الحالي
+          .where('uid', isNotEqualTo: currentUserId)
           .get();
-
       return querySnapshot.docs;
     } catch (e) {
-      // print("Error getting users: $e");
       throw Exception(e.toString());
     }
   }
 
   Future<bool> checkChatExists(String chatId) async {
-    // String chatId = generateChatId(uid1, uid2);
     final result = await _chatCollection!.doc(chatId).get();
-    
-      return result.exists;
+    return result.exists;
   }
 
   Future<void> createNewChat(String uid1, String uid2) async {
@@ -67,28 +61,36 @@ class DatabaseService {
 
   Future<void> sendChatMessage(uid1, uid2, Message message) async {
     final String chatId = generateChatId(uid1, uid2);
-
     try {
-      await _chatCollection!.doc(chatId).update({
-        "messages": FieldValue.arrayUnion([message.toJson()])
-      });
+      await _chatCollection!
+          .doc(chatId)
+          .collection('messages')
+          .add(message.toJson());
     } catch (e) {
       throw Exception(e.toString());
     }
   }
 
-  Future<Chat> getChatData(String uid1, String uid2) async {
-    try {
-      final String chatId = generateChatId(uid1, uid2);
+  Stream<QuerySnapshot> getChatMessagesStream(String chatId) {
+    return _chatCollection!
+        .doc(chatId)
+        .collection('messages')
+        .orderBy('sentAt', descending: true)
+        .snapshots();
+  }
 
-      QuerySnapshot querySnapshot =
-          await _chatCollection!.where('id', isEqualTo: chatId).get();
-      List<Chat> chats = querySnapshot.docs
-          .map((doc) => Chat.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
-      return chats[0];
-    } catch (e) {
-      throw Exception(e.toString());
-    }
+  Stream<Map<String,dynamic>?> getLastMessage(String chatId) {
+    return _chatCollection!
+        .doc(chatId)
+        .collection('messages')
+        .orderBy('sentAt', descending: true)
+        .limit(1)
+        .snapshots()
+        .map((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        return {'content':snapshot.docs.first['content'] as String,'senderID':snapshot.docs.first['senderID']};
+      }
+      return null;
+    });
   }
 }

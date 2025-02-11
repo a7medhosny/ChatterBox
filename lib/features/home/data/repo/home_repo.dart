@@ -17,8 +17,14 @@ class HomeRepo {
       throw Exception(e.toString());
     }
   }
-    Future<void> createNewChat(String uid1, String uid2) async {
-    return await databaseService.createNewChat(uid1, uid2);
-    }
 
+  Future<void> createNewChat(String uid1, String uid2) async {
+    return await databaseService.createNewChat(uid1, uid2);
+  }
+  Stream<Map<String,dynamic>?> getLastMessage(String chatId) {
+  return databaseService.getLastMessage(chatId);
+}
+
+
+ 
 }
